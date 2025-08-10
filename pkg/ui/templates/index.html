@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Discovered Servers</title>
+</head>
+<body>
+    <h1>Discovered Servers</h1>
+    <ul>
+        {{range .}}
+            <li><a href="/server/{{.ID}}">{{.Hostname}} ({{.OS}})</a></li>
+        {{else}}
+            <li>No servers discovered</li>
+        {{end}}
+    </ul>
+</body>
+</html>
+
