@@ -1,17 +1,62 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-    <title>Discovered Servers</title>
+  <meta charset="utf-8">
+  <title>Discovered Servers</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Discovered Servers</h1>
-    <ul>
-        {{range .}}
-            <li><a href="/server/{{.ID}}">{{.Hostname}} ({{.OS}})</a></li>
-        {{else}}
-            <li>No servers discovered</li>
-        {{end}}
-    </ul>
+<body class="min-h-screen bg-gray-50 text-gray-900">
+  <header class="border-b bg-white">
+    <div class="max-w-6xl mx-auto px-4 py-4">
+      <h1 class="text-2xl font-semibold">Discovered Servers</h1>
+      <p class="text-sm text-gray-600">Live inventory from agent scans</p>
+    </div>
+  </header>
+
+  <main class="max-w-6xl mx-auto px-4 py-6">
+    <div class="bg-white border rounded-xl shadow-sm overflow-hidden">
+      <div class="px-4 py-3 border-b flex items-center justify-between">
+        <div class="text-sm text-gray-600">Total: <span class="font-medium">{{len .}}</span></div>
+        <a href="/" class="text-sm text-blue-700 hover:underline">Refresh</a>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="min-w-full text-sm">
+          <thead class="bg-gray-50 text-gray-600 uppercase tracking-wider text-xs border-b">
+            <tr>
+              <th class="px-4 py-3 text-left">Hostname</th>
+              <th class="px-4 py-3 text-left">OS</th>
+              <th class="px-4 py-3 text-left">Arch</th>
+              <th class="px-4 py-3 text-left">CPU</th>
+              <th class="px-4 py-3 text-left">Details</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y">
+            {{range .}}
+            <tr class="hover:bg-gray-50">
+              <td class="px-4 py-3 font-medium">{{.Hostname}}</td>
+              <td class="px-4 py-3">
+                <span class="inline-flex items-center px-2 py-0.5 rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                  {{.OS}}
+                </span>
+              </td>
+              <td class="px-4 py-3 text-gray-700">{{.Arch}}</td>
+              <td class="px-4 py-3 text-gray-700">{{.NumCPU}}</td>
+              <td class="px-4 py-3">
+                <a class="text-blue-700 hover:underline" href="/server/{{.ID}}">Open</a>
+              </td>
+            </tr>
+            {{else}}
+            <tr>
+              <td colspan="5" class="px-4 py-6 text-center text-gray-500">No servers discovered</td>
+            </tr>
+            {{end}}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
 </body>
 </html>
 
