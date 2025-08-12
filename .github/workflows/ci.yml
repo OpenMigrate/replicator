@@ -5,6 +5,8 @@ on:
     branches-ignore:
       - main
 
+  workflow_dispatch:
+
 permissions:
   contents: read
 
@@ -28,7 +30,6 @@ jobs:
 
   test:
     runs-on: ubuntu-latest
-    needs: lint
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
