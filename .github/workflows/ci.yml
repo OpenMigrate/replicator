@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches-ignore:
+      - main
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lint:
+    name: Perform Code Linting
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set-up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Perform Linting with golangci-lint
+        uses: golangci/golangci-lint-action@v8
+
+  test:
+    name: Perform Unit Tests and Generate Coverage File
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      - name: Set-up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - name: Perform Unit Testing
+        run: go test -race -coverprofile=coverage.out -covermode=atomic ./...
+      - name: Generate HTML Coverage
+        run: go tool cover -html=coverage.out -o coverage.html
+      - name: Upload Coverage Artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: Test Coverage
+          path: |
+            ./coverage.out
+            ./coverage.html
