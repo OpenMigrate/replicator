@@ -1,9 +1,12 @@
 package logger
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 )
 
 type Options struct {
@@ -24,6 +27,16 @@ func Init(opts Options) (*slog.Logger, func() error, error) {
 
 	// If file path is provided, use file; otherwise use stdout
 	if opts.File != "" {
+    // to validate the path for log file
+    dir := filepath.Dir(opts.File)
+		if dir != "." && dir != "/" {
+			if _, err := os.Stat(dir); err != nil {
+				if errors.Is(err, os.ErrNotExist) {
+					return nil, nil, fmt.Errorf("log directory not found: %s", dir)
+				}
+				return nil, nil, fmt.Errorf("log directory check failed for %s: %w", dir, err)
+			}
+		}
 		f, err := os.OpenFile(opts.File, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 		if err != nil {
 			return nil, nil, err
