@@ -41,7 +41,7 @@ func Init(opts Options) (*slog.Logger, func() error, error) {
 	// Create appropriate handler based on JSON flag
 	var handler slog.Handler
 	handlerOpts := &slog.HandlerOptions{Level: level}
-	
+
 	if opts.JSON {
 		handler = slog.NewJSONHandler(writer, handlerOpts)
 	} else {
@@ -66,4 +66,3 @@ func Get() *slog.Logger {
 func Close() error {
 	return closer()
 }
-
