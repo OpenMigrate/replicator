@@ -1,9 +1,12 @@
 package logger
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 	"os"
+	"path/filepath"
 )
 
 type Options struct {
@@ -20,10 +23,20 @@ var (
 // Init creates the logger and stores it globally for Get().
 func Init(opts Options) (*slog.Logger, func() error, error) {
 	var writer io.Writer = os.Stdout
-	var newCloser func() error = func() error { return nil }
+	var newCloser = func() error { return nil }
 
 	// If file path is provided, use file; otherwise use stdout
 	if opts.File != "" {
+		// to validate the path for log file
+		dir := filepath.Dir(opts.File)
+		if dir != "." && dir != "/" {
+			if _, err := os.Stat(dir); err != nil {
+				if errors.Is(err, os.ErrNotExist) {
+					return nil, nil, fmt.Errorf("log directory not found: %s", dir)
+				}
+				return nil, nil, fmt.Errorf("log directory check failed for %s: %w", dir, err)
+			}
+		}
 		f, err := os.OpenFile(opts.File, os.O_CREATE|os.O_WRONLY|os.O_APPEND, 0o644)
 		if err != nil {
 			return nil, nil, err
@@ -41,7 +54,7 @@ func Init(opts Options) (*slog.Logger, func() error, error) {
 	// Create appropriate handler based on JSON flag
 	var handler slog.Handler
 	handlerOpts := &slog.HandlerOptions{Level: level}
-	
+
 	if opts.JSON {
 		handler = slog.NewJSONHandler(writer, handlerOpts)
 	} else {
@@ -66,4 +79,3 @@ func Get() *slog.Logger {
 func Close() error {
 	return closer()
 }
-
