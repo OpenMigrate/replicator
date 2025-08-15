@@ -9,19 +9,26 @@ import (
 	"github.com/google/uuid"
 )
 
+// DiscoverHandler responds with acceptiong the metadata from agent and returns it's store id
+//
+// It retrieves the storage instance and logger from the request context.
 func DiscoverHandler(w http.ResponseWriter, r *http.Request) {
 	var md models.Metadata
-	err := json.NewDecoder(r.Body).Decode(&md)
+  log := mw.GetLogFromCtx(r)
+
+	if err := json.NewDecoder(r.Body).Decode(&md); err != nil {
+    log.Error("DiscoverHandler: JSON encoding error", "msg", err.Error())
+		http.Error(w, err.Error(), http.StatusBadRequest)
+		return
+	}
+
 	s := mw.StoreFrom(r)
 	if s == nil {
+    log.Error("ListServersHandler: store is nil")
 		http.Error(w, "store missing", http.StatusInternalServerError)
 		return
 	}
 
-	if err != nil {
-		http.Error(w, err.Error(), http.StatusBadRequest)
-		return
-	}
 
 	md.ID = uuid.New().String()
 	if err := s.SaveServer(md); err != nil {

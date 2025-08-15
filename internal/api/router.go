@@ -1,6 +1,7 @@
 package api
 
 import (
+	"log/slog"
 	"net/http"
 	"replicator/internal/storage"
 
@@ -12,11 +13,12 @@ import (
 	"github.com/go-chi/chi/v5/middleware"
 )
 
-func NewRouter(store *storage.Store) http.Handler {
+func NewRouter(store *storage.Store, logger *slog.Logger) http.Handler {
 	r := chi.NewRouter()
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(mw.WithStore(store))
+  r.Use(mw.InjectLog(logger))
 
 	r.Post("/discover", handlers.DiscoverHandler)
 
