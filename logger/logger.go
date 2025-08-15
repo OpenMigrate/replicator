@@ -23,12 +23,12 @@ var (
 // Init creates the logger and stores it globally for Get().
 func Init(opts Options) (*slog.Logger, func() error, error) {
 	var writer io.Writer = os.Stdout
-	var newCloser func() error = func() error { return nil }
+	var newCloser = func() error { return nil }
 
 	// If file path is provided, use file; otherwise use stdout
 	if opts.File != "" {
-    // to validate the path for log file
-    dir := filepath.Dir(opts.File)
+		// to validate the path for log file
+		dir := filepath.Dir(opts.File)
 		if dir != "." && dir != "/" {
 			if _, err := os.Stat(dir); err != nil {
 				if errors.Is(err, os.ErrNotExist) {

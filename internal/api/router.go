@@ -18,7 +18,7 @@ func NewRouter(store *storage.Store, logger *slog.Logger) http.Handler {
 	r.Use(middleware.Logger)
 	r.Use(middleware.Recoverer)
 	r.Use(mw.WithStore(store))
-  r.Use(mw.InjectLog(logger))
+	r.Use(mw.InjectLog(logger))
 
 	r.Post("/discover", handlers.DiscoverHandler)
 

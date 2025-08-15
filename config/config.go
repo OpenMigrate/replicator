@@ -10,17 +10,17 @@ import (
 )
 
 type Config struct {
-	Verbose   bool
-	LogPath   string
-	JSON      bool
-	DBURL     string // e.g. file:replicator.db?cache=shared&_busy_timeout=5000
+	Verbose bool
+	LogPath string
+	JSON    bool
+	DBURL   string // e.g. file:replicator.db?cache=shared&_busy_timeout=5000
 }
 
 type fileConfig struct {
-	Log       struct {
-		Path string `toml:"path"`
-		JSON bool   `toml:"json"`
-    Verbose bool `toml:"verbose"`
+	Log struct {
+		Path    string `toml:"path"`
+		JSON    bool   `toml:"json"`
+		Verbose bool   `toml:"verbose"`
 	} `toml:"log"`
 	Database struct {
 		URL string `toml:"url"`
@@ -61,12 +61,12 @@ func LoadConfig() *Config {
 	}
 
 	c := &Config{
-		Verbose:   verbose,
-		LogPath:   "",
-		JSON:      false,
-		DBURL:     defaultDBURL,
+		Verbose: verbose,
+		LogPath: "",
+		JSON:    false,
+		DBURL:   defaultDBURL,
 	}
-  c.Verbose = fc.Log.Verbose 
+	c.Verbose = fc.Log.Verbose
 	if fc.Log.Path != "" {
 		c.LogPath = fc.Log.Path
 	}
@@ -77,4 +77,3 @@ func LoadConfig() *Config {
 
 	return c
 }
-

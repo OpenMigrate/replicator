@@ -18,7 +18,7 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 	}
 
 	data, _ := storage.ListServers()
-	templates.ExecuteTemplate(w, "index.html", data)
+	_ = templates.ExecuteTemplate(w, "index.html", data)
 }
 
 func ServerPage(w http.ResponseWriter, r *http.Request) {
@@ -34,5 +34,5 @@ func ServerPage(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	templates.ExecuteTemplate(w, "server.html", md)
+	_ = templates.ExecuteTemplate(w, "server.html", md)
 }
