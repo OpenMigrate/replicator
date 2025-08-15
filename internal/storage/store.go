@@ -37,11 +37,11 @@ func (s *Store) ListServers() (res []models.Metadata, err error) {
 	return
 }
 
-func (s *Store) GetServer(id string) (md models.Metadata, err error) {
-	err = s.DB.Order("timestamp_utc DESC").Find(&md, id).Error
-	return
+func (s *Store) GetServer(id string) (models.Metadata, error) {
+	var md models.Metadata
+	return md, s.DB.First(&md, "id = ?", id).Error
 }
 
 func (s *Store) DeleteServer(id string) error {
-	return s.DB.Delete(&models.Metadata{}, id).Error
+	return s.DB.Delete(&models.Metadata{}, "id = ?", id).Error
 }

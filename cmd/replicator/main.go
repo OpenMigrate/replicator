@@ -22,7 +22,7 @@ func main() {
 
   store, err := storage.Init(cfg.DBURL)
   if err != nil {
-    log.Error("Unable to connect to db", err.Error)
+    log.Error("Unable to connect to db", "msg", err.Error)
   }
   log.Info("db", "data", store)
 

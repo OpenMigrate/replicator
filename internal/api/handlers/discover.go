@@ -13,8 +13,8 @@ func DiscoverHandler(w http.ResponseWriter, r *http.Request) {
 	var md models.Metadata
 	err := json.NewDecoder(r.Body).Decode(&md)
 	s := mw.StoreFrom(r)
-	if s != nil {
-		http.Error(w, "store missing", 500)
+	if s == nil {
+		http.Error(w, "store missing", http.StatusInternalServerError)
 		return
 	}
 

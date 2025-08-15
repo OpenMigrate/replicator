@@ -18,10 +18,11 @@ type ctxKey string
 
 const storeKey ctxKey = "store"
 
-func StoreFrom(r *http.Request) *storage.Store {
+func StoreFrom(r *http.Request) (s *storage.Store) {
 	v := r.Context().Value(storeKey)
 	if v == nil {
 		return nil
 	}
-	return v.(*storage.Store)
+  s, _ = v.(*storage.Store)
+	return
 }

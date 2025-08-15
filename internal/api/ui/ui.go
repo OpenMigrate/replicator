@@ -12,7 +12,7 @@ var templates = template.Must(template.ParseGlob("pkg/ui/templates/*.html"))
 
 func IndexPage(w http.ResponseWriter, r *http.Request) {
 	storage := mw.StoreFrom(r)
-	if storage != nil {
+	if storage == nil {
 		http.Error(w, "store missing", 500)
 		return
 	}
@@ -23,7 +23,7 @@ func IndexPage(w http.ResponseWriter, r *http.Request) {
 
 func ServerPage(w http.ResponseWriter, r *http.Request) {
 	storage := mw.StoreFrom(r)
-	if storage != nil {
+	if storage == nil {
 		http.Error(w, "store missing", 500)
 		return
 	}
