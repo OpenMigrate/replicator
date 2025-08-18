@@ -12,6 +12,9 @@ linters:
     - gosimple
     - ineffassign
     - errcheck
+
+formatters:
+  enable:
     - gofmt
 
 issues:
