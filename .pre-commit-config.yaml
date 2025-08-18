@@ -12,7 +12,7 @@ repos:
       - id: no-commit-to-branch
         args:
           - '--pattern'
-          - '^((?!(feat|feature|fix|bugfix|chore|docs|refactor|test|ci|build|perf|wip|break|revert|hotfix|security)/(OM|om)-[0-9]{1,5}_[A-Za-z0-9._\-]+).)*$'
+          - '^((?!(feat|feature|fix|add|chore|docs|refac|wip|hotfix|security)/[0-9]{1,5}-[A-Za-z0-9._\-]+).)*$'
 
       # Common errors
       - id: end-of-file-fixer
@@ -62,4 +62,3 @@ repos:
     hooks:
       - id: golangci-lint
         args: ["-c", ".golangci.yml"]
-
