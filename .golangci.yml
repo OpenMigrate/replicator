@@ -1,4 +1,4 @@
-version: 2
+version: "2"
 
 run:
   timeout: 3m
@@ -15,6 +15,5 @@ linters:
     - gofmt
 
 issues:
-  exclude-use-default: false
   max-issues-per-linter: 0
   max-same-issues: 0
