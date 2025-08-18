@@ -1,0 +1,26 @@
+[tool.commitizen]
+name = "cz_customize"
+version = "0.1.0"
+tag_format = "v$version"
+
+[tool.commitizen.customize]
+message_template = "<type>(<scope>): <subject>"
+example = "feat(api): add app grouping endpoints"
+schema = "<type>(<scope>): <subject>"
+schema_pattern = "^(feat|feature|fix|add|chore|docs|refac|wip|hotfix|security)(\\([\\w\\-.]+\\))?!?: .+"
+
+[tool.commitizen.customize.questions]
+type = { type = "list", message = "Select the type of change:", choices = [
+  { value = "feat", name = "feat: a new feature" },
+  { value = "feature", name = "feature: a new feature (long form)" },
+  { value = "fix", name = "fix: a bug fix" },
+  { value = "add", name = "add: add files or capabilities" },
+  { value = "chore", name = "chore: tooling or maintenance" },
+  { value = "docs", name = "docs: documentation changes" },
+  { value = "refac", name = "refac: refactor code" },
+  { value = "wip", name = "wip: work in progress" },
+  { value = "hotfix", name = "hotfix: urgent fix" },
+  { value = "security", name = "security: security-related change" },
+]}
+scope = { type = "input", message = "Scope (optional):", required = false }
+subject = { type = "input", message = "Short description:", required = true }
