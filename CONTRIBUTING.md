@@ -12,8 +12,8 @@ Thanks for your interest in contributing! This guide covers local setup, branch 
 - macOS
   - Install tools:
     ```bash
-    brew install go gh pre-commit golangci-lint
-    pipx install commitizen || pip install commitizen
+    brew install go gh pre-commit golangci-lint commitizen
+    # or: pipx install commitizen || pip install commitizen
     ```
 
 - Ubuntu/Debian

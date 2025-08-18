@@ -4,4 +4,3 @@ json = false
 
 [database]
 url = "file:replicator.db?cache=shared&_busy_timeout=5000"
-
