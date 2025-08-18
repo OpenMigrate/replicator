@@ -1,0 +1,65 @@
+default_install_hook_types: [commit-msg, pre-commit]
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      # Git style
+      - id: check-added-large-files
+      - id: check-merge-conflict
+      - id: check-vcs-permalinks
+      - id: forbid-new-submodules
+      - id: no-commit-to-branch
+        args:
+          - '--pattern'
+          - '^((?!(feat|feature|fix|bugfix|chore|docs|refactor|test|ci|build|perf|wip|break|revert|hotfix|security)/(OM|om)-[0-9]{1,5}_[A-Za-z0-9._\-]+).)*$'
+
+      # Common errors
+      - id: end-of-file-fixer
+      - id: trailing-whitespace
+        args: [--markdown-linebreak-ext=md]
+      - id: check-yaml
+      - id: check-executables-have-shebangs
+
+      # Cross platform
+      - id: check-case-conflict
+      - id: mixed-line-ending
+        args: [--fix=lf]
+
+  - repo: https://github.com/Yelp/detect-secrets.git
+    rev: v1.4.0
+    hooks:
+      - id: detect-secrets
+        name: Detect secrets
+        always_run: true
+        description: Detects high entropy strings that are likely to be passwords.
+        entry: detect-secrets-hook
+        files: .*(\.(json|yml|yaml|tf|toml|ini))$
+
+  - repo: https://github.com/commitizen-tools/commitizen
+    rev: v2.42.1
+    hooks:
+      - id: commitizen
+        stages: [commit-msg]
+
+  # Go formatting and vet (local hooks)
+  - repo: local
+    hooks:
+      - id: go-fmt
+        name: go fmt
+        entry: bash -lc 'go fmt ./...'
+        language: system
+        pass_filenames: false
+      - id: go-vet
+        name: go vet
+        entry: bash -lc 'go vet ./...'
+        language: system
+        pass_filenames: false
+
+  # GolangCI-Lint (static analysis)
+  - repo: https://github.com/golangci/golangci-lint
+    rev: v1.59.1
+    hooks:
+      - id: golangci-lint
+        args: ["-c", ".golangci.yml"]
+
