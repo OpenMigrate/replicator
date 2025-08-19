@@ -62,6 +62,12 @@ repos:
         language: system
         stages: [commit-msg]
         pass_filenames: true
+      - id: line-count-limit
+        name: line count limit (warn >300, block >450)
+        description: Warn on files 301–450 lines; fail if any >450 lines
+        entry: bash -lc 'scripts/line_count_check.sh'
+        language: system
+        pass_filenames: true
 
   # GolangCI-Lint (static analysis)
   - repo: https://github.com/golangci/golangci-lint
