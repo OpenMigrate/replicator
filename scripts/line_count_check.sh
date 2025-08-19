@@ -27,8 +27,8 @@ for f in "$@"; do
     continue
   fi
 
-  # Skip binary files by simple heuristic: if it contains NUL bytes, treat as binary
-  if LC_ALL=C grep -Iq $'\0' "$f"; then
+  # Skip binary files: if grep treating binary as non-text, skip
+  if ! LC_ALL=C grep -Iq . "$f"; then
     continue
   fi
 
@@ -59,4 +59,3 @@ if (( blocked == 1 )); then
 fi
 
 exit 0
-
