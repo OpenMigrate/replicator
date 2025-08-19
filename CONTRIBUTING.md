@@ -67,6 +67,9 @@ Our pre-commit `no-commit-to-branch` hook blocks commits on non-conforming branc
   ```
   or commit normally and the `commit-msg` hook will validate.
 
+- Issue reference: include a GitHub issue reference (`#<issue>`) somewhere in the commit
+  message (body or footer). Examples: `Refs #29`, `Closes #102`.
+
 ## Development Workflow
 
 - Create or pick up an issue. For new features, propose design via an issue first.

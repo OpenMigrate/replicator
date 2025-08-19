@@ -55,6 +55,13 @@ repos:
         entry: bash -lc 'go vet ./...'
         language: system
         pass_filenames: false
+      - id: require-issue-reference
+        name: require issue reference in commit message
+        description: Ensure commit messages reference a GitHub issue like #123
+        entry: bash -lc 'scripts/require_issue_ref.sh "$1"'
+        language: system
+        stages: [commit-msg]
+        pass_filenames: true
 
   # GolangCI-Lint (static analysis)
   - repo: https://github.com/golangci/golangci-lint
