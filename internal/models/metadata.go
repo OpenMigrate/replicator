@@ -2,6 +2,7 @@ package models
 
 import "time"
 
+// --- servers (metadata) ---
 type Metadata struct {
 	ID              string `json:"id" gorm:"primaryKey;Size:64;not null"`
 	Hostname        string `json:"hostname"`
@@ -16,4 +17,7 @@ type Metadata struct {
 	TimestampUTC    string `json:"timestamp_utc" gorm:"index"`
 	CreatedAt       time.Time
 	UpdatedAt       time.Time
+
+	// Apps []App `json:"apps" gorm:"many2many:app_servers;constraint:OnUpdate:CASCADE,OnDelete:CASCADE;"`
+	Apps []App `json:"apps" gorm:"many2many:app_servers"`
 }
