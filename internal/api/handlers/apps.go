@@ -1,4 +1,3 @@
-// handlers/apps.go
 package handlers
 
 import (
@@ -10,6 +9,8 @@ import (
 
 	"github.com/go-chi/chi/v5"
 	"github.com/google/uuid"
+
+	"replicator/internal/api/dto"
 	mw "replicator/internal/api/middleware"
 	"replicator/internal/models"
 	"replicator/internal/storage"
@@ -25,7 +26,6 @@ func slugify(s string) string {
 
 type createAppReq struct {
 	Name        string `json:"name"`
-	Identifier  string `json:"identifier"`
 	Description string `json:"description"`
 }
 
@@ -55,11 +55,6 @@ func CreateAppHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "name is required", http.StatusBadRequest)
 		return
 	}
-	identifier := slugify(req.Identifier)
-	if identifier == "" {
-		http.Error(w, "identifier is required", http.StatusBadRequest)
-		return
-	}
 
 	var cnt int64
 	if err := store.DB.Model(&models.App{}).Where("name = ?", name).Count(&cnt).Error; err != nil {
@@ -70,19 +65,10 @@ func CreateAppHandler(w http.ResponseWriter, r *http.Request) {
 		http.Error(w, "name already exists", http.StatusConflict)
 		return
 	}
-	if err := store.DB.Model(&models.App{}).Where("identifier = ?", identifier).Count(&cnt).Error; err != nil {
-		http.Error(w, "db error", http.StatusInternalServerError)
-		return
-	}
-	if cnt > 0 {
-		http.Error(w, "identifier already exists", http.StatusConflict)
-		return
-	}
 
-	app, err := store.CreateApp(r.Context(), storage.AppCreate{
+	app, err := store.CreateApp(storage.AppCreate{
 		ID:          uuid.NewString(),
 		Name:        name,
-		Identifier:  identifier,
 		Description: req.Description,
 	})
 	if err != nil {
@@ -90,14 +76,39 @@ func CreateAppHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := map[string]string{
-		"id":          app.ID,
-		"name":        app.Name,
-		"identifier":  app.Identifier,
-		"description": app.Description,
+	resp := dto.App{
+		ID:          app.ID,
+		Name:        app.Name,
+		Description: app.Description,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(resp)
+}
+
+// DELETE /api/apps/{id}
+func DeleteAppHandler(w http.ResponseWriter, r *http.Request) {
+	log := mw.GetLogFromCtx(r)
+	store := mw.StoreFrom(r)
+	if store == nil || store.DB == nil {
+		log.Error("DeleteAppHandler: store missing")
+		http.Error(w, "store missing", http.StatusInternalServerError)
+		return
+	}
+
+	id := chi.URLParam(r, "id")
+	if strings.TrimSpace(id) == "" {
+		http.Error(w, "id required", http.StatusBadRequest)
+		return
+	}
+
+	if err := store.DeleteApp(storage.AppSelector{ID: &id}); err != nil {
+		log.Error("DeleteAppHandler: db error", "error", err.Error())
+		http.Error(w, "delete failed", http.StatusInternalServerError)
+		return
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(dto.Status{Status: "ok"})
 }
 
 // GET /api/apps
@@ -118,28 +129,20 @@ func ListAppsHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 
-	items, next, err := store.ListApps(r.Context(), afterID, limit)
+	items, next, err := store.ListApps(afterID, limit)
 	if err != nil {
 		http.Error(w, "list failed", http.StatusInternalServerError)
 		return
 	}
 
-	type appItem struct {
-		ID          string `json:"id"`
-		Name        string `json:"name"`
-		Identifier  string `json:"identifier"`
-		Description string `json:"description"`
+	out := dto.AppList{
+		NextCursor: next,
+		Items:      make([]dto.App, 0, len(items)),
 	}
-	out := struct {
-		NextCursor string    `json:"next_cursor"`
-		Items      []appItem `json:"items"`
-	}{NextCursor: next, Items: make([]appItem, 0, len(items))}
-
 	for i := range items {
-		out.Items = append(out.Items, appItem{
+		out.Items = append(out.Items, dto.App{
 			ID:          items[i].ID,
 			Name:        items[i].Name,
-			Identifier:  items[i].Identifier,
 			Description: items[i].Description,
 		})
 	}
@@ -159,46 +162,16 @@ func GetAppByIDHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	id := chi.URLParam(r, "id")
-	app, err := store.FindApp(r.Context(), storage.AppSelector{ID: &id})
+	app, err := store.FindApp(storage.AppSelector{ID: &id})
 	if err != nil {
 		http.Error(w, "not found", http.StatusNotFound)
 		return
 	}
 
-	resp := map[string]string{
-		"id":          app.ID,
-		"name":        app.Name,
-		"identifier":  app.Identifier,
-		"description": app.Description,
-	}
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(resp)
-}
-
-// GET /api/apps/by-identifier/{identifier}
-func GetAppByIdentifierHandler(w http.ResponseWriter, r *http.Request) {
-	log := mw.GetLogFromCtx(r)
-	store := mw.StoreFrom(r)
-	if store == nil {
-		log.Error("GetAppByIdentifierHandler: store missing")
-		http.Error(w, "store missing", http.StatusInternalServerError)
-		return
-	}
-
-	raw := chi.URLParam(r, "identifier")
-	idf := slugify(raw)
-
-	app, err := store.FindApp(r.Context(), storage.AppSelector{Identifier: &idf})
-	if err != nil {
-		http.Error(w, "not found", http.StatusNotFound)
-		return
-	}
-
-	resp := map[string]string{
-		"id":          app.ID,
-		"name":        app.Name,
-		"identifier":  app.Identifier,
-		"description": app.Description,
+	resp := dto.App{
+		ID:          app.ID,
+		Name:        app.Name,
+		Description: app.Description,
 	}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(resp)
@@ -227,7 +200,7 @@ func AddServersToAppHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := store.ModifyAppServers(r.Context(),
+	if err := store.ModifyAppServers(
 		storage.AppSelector{ID: &appID},
 		req.ServerIDs,
 		storage.MembershipAdd); err != nil {
@@ -235,10 +208,7 @@ func AddServersToAppHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := map[string]any{
-		"status": "ok",
-		"count":  len(req.ServerIDs),
-	}
+	resp := dto.StatusCount{Status: "ok", Count: len(req.ServerIDs)}
 	w.Header().Set("Content-Type", "application/json")
 	_ = json.NewEncoder(w).Encode(resp)
 }
@@ -256,7 +226,7 @@ func RemoveServerFromAppHandler(w http.ResponseWriter, r *http.Request) {
 	appID := chi.URLParam(r, "appID")
 	serverID := chi.URLParam(r, "serverID")
 
-	if err := store.ModifyAppServers(r.Context(),
+	if err := store.ModifyAppServers(
 		storage.AppSelector{ID: &appID},
 		[]string{serverID},
 		storage.MembershipRemove); err != nil {
@@ -264,9 +234,8 @@ func RemoveServerFromAppHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	resp := map[string]string{"status": "ok"}
 	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(resp)
+	_ = json.NewEncoder(w).Encode(dto.Status{Status: "ok"})
 }
 
 // GET /api/apps/{appID}/servers
@@ -289,7 +258,6 @@ func ListServersForAppHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	servers, total, next, err := store.ListAppServers(
-		r.Context(),
 		storage.AppSelector{ID: &appID},
 		storage.Cursor{AfterID: afterID, Limit: limit},
 	)
@@ -298,93 +266,13 @@ func ListServersForAppHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	type serverItem struct {
-		ID           string `json:"id"`
-		Hostname     string `json:"hostname"`
-		OS           string `json:"os"`
-		Arch         string `json:"arch"`
-		NumCPU       int    `json:"num_cpu"`
-		TimestampUTC string `json:"timestamp_utc"`
+	out := dto.ServerList{
+		Total:      total,
+		NextCursor: next,
+		Items:      make([]dto.Server, 0, len(servers)),
 	}
-
-	out := struct {
-		Total      int64        `json:"total"`
-		NextCursor string       `json:"next_cursor"`
-		Items      []serverItem `json:"items"`
-	}{Total: total, NextCursor: next, Items: make([]serverItem, 0, len(servers))}
-
 	for i := range servers {
-		out.Items = append(out.Items, serverItem{
-			ID:           servers[i].ID,
-			Hostname:     servers[i].Hostname,
-			OS:           servers[i].OS,
-			Arch:         servers[i].Arch,
-			NumCPU:       servers[i].NumCPU,
-			TimestampUTC: servers[i].TimestampUTC,
-		})
-	}
-
-	w.Header().Set("Content-Type", "application/json")
-	_ = json.NewEncoder(w).Encode(out)
-}
-
-// GET /api/servers?app=<identifier>  (alias)
-func ListServersByAppIdentifierAliasHandler(w http.ResponseWriter, r *http.Request) {
-	log := mw.GetLogFromCtx(r)
-	store := mw.StoreFrom(r)
-	if store == nil {
-		log.Error("ListServersByAppIdentifierAliasHandler: store missing")
-		http.Error(w, "store missing", http.StatusInternalServerError)
-		return
-	}
-
-	idf := slugify(r.URL.Query().Get("app"))
-	if idf == "" {
-		http.Error(w, "app is required", http.StatusBadRequest)
-		return
-	}
-
-	afterID := r.URL.Query().Get("after_id")
-	limit := 50
-	if lq := r.URL.Query().Get("limit"); lq != "" {
-		if v, err := strconv.Atoi(lq); err == nil && v > 0 && v <= 500 {
-			limit = v
-		}
-	}
-
-	app, err := store.FindApp(r.Context(), storage.AppSelector{Identifier: &idf})
-	if err != nil {
-		http.Error(w, "not found", http.StatusNotFound)
-		return
-	}
-
-	servers, total, next, err := store.ListAppServers(
-		r.Context(),
-		storage.AppSelector{ID: &app.ID},
-		storage.Cursor{AfterID: afterID, Limit: limit},
-	)
-	if err != nil {
-		http.Error(w, "list failed", http.StatusInternalServerError)
-		return
-	}
-
-	type serverItem struct {
-		ID           string `json:"id"`
-		Hostname     string `json:"hostname"`
-		OS           string `json:"os"`
-		Arch         string `json:"arch"`
-		NumCPU       int    `json:"num_cpu"`
-		TimestampUTC string `json:"timestamp_utc"`
-	}
-
-	out := struct {
-		Total      int64        `json:"total"`
-		NextCursor string       `json:"next_cursor"`
-		Items      []serverItem `json:"items"`
-	}{Total: total, NextCursor: next, Items: make([]serverItem, 0, len(servers))}
-
-	for i := range servers {
-		out.Items = append(out.Items, serverItem{
+		out.Items = append(out.Items, dto.Server{
 			ID:           servers[i].ID,
 			Hostname:     servers[i].Hostname,
 			OS:           servers[i].OS,

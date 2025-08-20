@@ -52,7 +52,6 @@ func (s *Store) SeedSampleData(ctx context.Context) error {
 		{
 			ID:          uuid.NewString(),
 			Name:        "Payments",
-			Identifier:  "payments",
 			Description: "Prod payment service",
 			CreatedAt:   now,
 			UpdatedAt:   now,
@@ -60,7 +59,6 @@ func (s *Store) SeedSampleData(ctx context.Context) error {
 		{
 			ID:          uuid.NewString(),
 			Name:        "Analytics",
-			Identifier:  "analytics",
 			Description: "Analytics and BI service",
 			CreatedAt:   now,
 			UpdatedAt:   now,

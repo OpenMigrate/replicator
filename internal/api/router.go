@@ -26,6 +26,20 @@ func NewRouter(store *storage.Store, logger *slog.Logger) http.Handler {
 		r.Post("/discover", handlers.DiscoverHandler)
 		r.Get("/servers", handlers.ListServersHandler)
 		r.Get("/servers/{id}", handlers.GetServerHandler)
+
+		r.Route("/apps", func(r chi.Router) {
+			r.Post("/", handlers.CreateAppHandler)
+			r.Get("/", handlers.ListAppsHandler)
+			r.Get("/{id}", handlers.GetAppByIDHandler)
+			r.Post("/{appID}/servers", handlers.AddServersToAppHandler)
+			r.Delete("/{appID}/servers/{serverID}", handlers.RemoveServerFromAppHandler)
+			r.Get("/{appID}/servers", handlers.ListServersForAppHandler)
+			r.Delete("/{id}", handlers.DeleteAppHandler)
+		})
+
+		// debug seed route — IMPORTANT: stays inside this block
+		r.Post("/debug/seed", handlers.SeedHandler)
+
 	})
 
 	// UI routes

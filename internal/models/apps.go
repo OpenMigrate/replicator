@@ -6,7 +6,6 @@ import "time"
 type App struct {
 	ID          string `json:"id" gorm:"primaryKey;size:64;not null"`
 	Name        string `json:"name" gorm:"size:255;not null;uniqueIndex"`
-	Identifier  string `json:"identifier" gorm:"size:255;not null;uniqueIndex"`
 	Description string `json:"description" gorm:"type:text"`
 	CreatedAt   time.Time
 	UpdatedAt   time.Time
