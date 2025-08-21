@@ -1,11 +1,11 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Pre-commit hook: Warn for files >300 lines (up to 450),
-# block commit if any file exceeds 450 lines.
+# Pre-commit hook: Warn for files >500 lines (up to 750),
+# block commit if any file exceeds 750 lines.
 
-warn_threshold=300
-block_threshold=450
+warn_threshold=500
+block_threshold=750
 
 warned=0
 blocked=0

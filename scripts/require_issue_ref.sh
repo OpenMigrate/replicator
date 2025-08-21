@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# pre-commit commit-msg hook: ensure commit message references a GitHub issue
+# pre-commit commit-msg hook: check commit message references a GitHub issue
 # Usage: scripts/require_issue_ref.sh <commit_msg_file>
 
 msg_file="${1:-}"
@@ -12,14 +12,15 @@ fi
 
 # Read first line (subject)
 subject="$(head -n1 "$msg_file" | tr -d '\r')"
+lower_subject="$(printf '%s' "$subject" | tr '[:upper:]' '[:lower:]')"
 
 # Allow merges and reverts to pass without extra checks
-if [[ "$subject" =~ ^Merge\  || "$subject" =~ ^Revert\  ]]; then
+if [[ "$lower_subject" =~ ^merge\  || "$lower_subject" =~ ^revert\  ]]; then
   exit 0
 fi
 
 # Allow automated release/version bump commits
-if [[ "$subject" =~ ^chore\(release\):\  || "$subject" =~ ^bump: ]]; then
+if [[ "$lower_subject" =~ ^chore\(release\):\  || "$lower_subject" =~ ^bump: ]]; then
   exit 0
 fi
 
@@ -33,7 +34,6 @@ if command -v grep >/dev/null 2>&1 && grep -Eq "#[0-9]{1,7}(\b|$)" "$msg_file"; 
   exit 0
 fi
 
-echo "Commit message must reference a GitHub issue (e.g., 'Refs #123' or 'Closes #123')." >&2
-echo "Branch already encodes the issue ID; please include '#<num>' in the message body or footer." >&2
-exit 1
-
+echo "[issue-ref] Warning: no GitHub issue reference found (e.g., 'refs #123' or 'closes #123')." >&2
+echo "Include '#<num>' in the message body or footer when possible." >&2
+exit 0

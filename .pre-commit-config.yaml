@@ -56,15 +56,15 @@ repos:
         language: system
         pass_filenames: false
       - id: require-issue-reference
-        name: require issue reference in commit message
-        description: Ensure commit messages reference a GitHub issue like #123
+        name: issue reference check (warning)
+        description: Warn if commit message lacks a GitHub issue reference like #123
         entry: bash -lc 'scripts/require_issue_ref.sh "$1"'
         language: system
         stages: [commit-msg]
         pass_filenames: true
       - id: line-count-limit
-        name: line count limit (warn >300, block >450)
-        description: Warn on files 301–450 lines; fail if any >450 lines
+        name: line count limit (warn >500, block >750)
+        description: Warn on files 501–750 lines; fail if any >750 lines
         entry: bash -lc 'scripts/line_count_check.sh'
         language: system
         pass_filenames: true

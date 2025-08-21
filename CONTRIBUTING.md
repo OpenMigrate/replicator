@@ -69,6 +69,7 @@ Our pre-commit `no-commit-to-branch` hook blocks commits on non-conforming branc
 
 - Issue reference: include a GitHub issue reference (`#<issue>`) somewhere in the commit
   message (body or footer). Examples: `Refs #29`, `Closes #102`.
+  The commit-msg hook only warns if missing; commits still proceed.
 
 ## Development Workflow
 
@@ -91,9 +92,9 @@ Our pre-commit `no-commit-to-branch` hook blocks commits on non-conforming branc
 
 ## File Size Guidelines
 
-- Keep source files concise. The pre-commit hook warns when a changed file exceeds 300 lines and blocks commits for files over 450 lines.
-  - Warning: 301–450 lines (message only; commit proceeds)
-  - Error: >450 lines (commit blocked)
+- Keep source files concise. The pre-commit hook warns when a changed file exceeds 500 lines and blocks commits for files over 750 lines.
+  - Warning: 501–750 lines (message only; commit proceeds)
+  - Error: >750 lines (commit blocked)
   - Consider splitting large files into smaller units for readability and maintainability.
 
 ## Security & Secrets
