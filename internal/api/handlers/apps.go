@@ -3,7 +3,6 @@ package handlers
 import (
 	"encoding/json"
 	"net/http"
-	"regexp"
 	"strconv"
 	"strings"
 
@@ -15,14 +14,6 @@ import (
 	"replicator/internal/models"
 	"replicator/internal/storage"
 )
-
-var slugRe = regexp.MustCompile(`[^a-z0-9]+`)
-
-func slugify(s string) string {
-	s = strings.ToLower(strings.TrimSpace(s))
-	s = slugRe.ReplaceAllString(s, "-")
-	return strings.Trim(s, "-")
-}
 
 type createAppReq struct {
 	Name        string `json:"name"`

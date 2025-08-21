@@ -170,31 +170,3 @@ func unique(in []string) []string {
 	}
 	return out
 }
-
-func diff(a, b []string) []string {
-	mb := make(map[string]struct{}, len(b))
-	for _, v := range b {
-		mb[v] = struct{}{}
-	}
-	out := make([]string, 0, len(a))
-	for _, v := range a {
-		if _, ok := mb[v]; !ok && v != "" {
-			out = append(out, v)
-		}
-	}
-	return out
-}
-
-func intersect(a, b []string) []string {
-	mb := make(map[string]struct{}, len(b))
-	for _, v := range b {
-		mb[v] = struct{}{}
-	}
-	out := make([]string, 0, len(a))
-	for _, v := range a {
-		if _, ok := mb[v]; ok {
-			out = append(out, v)
-		}
-	}
-	return out
-}
