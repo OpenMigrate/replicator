@@ -21,7 +21,19 @@ func Init(dbUrl string) (*Store, error) {
 	if err != nil {
 		return nil, err
 	}
-	if err := db.AutoMigrate(&models.Metadata{}); err != nil {
+
+	if err := db.AutoMigrate(
+		&models.Metadata{},
+		&models.App{},
+		&models.AppServer{},
+	); err != nil {
+		return nil, err
+	}
+
+	if err := db.SetupJoinTable(&models.App{}, "Servers", &models.AppServer{}); err != nil {
+		return nil, err
+	}
+	if err := db.SetupJoinTable(&models.Metadata{}, "Apps", &models.AppServer{}); err != nil {
 		return nil, err
 	}
 
