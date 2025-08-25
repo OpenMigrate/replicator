@@ -55,6 +55,19 @@ repos:
         entry: bash -lc 'go vet ./...'
         language: system
         pass_filenames: false
+      - id: require-issue-reference
+        name: issue reference check (warning)
+        description: Warn if commit message lacks a GitHub issue reference like #123
+        entry: bash -lc 'scripts/require_issue_ref.sh "$1"'
+        language: system
+        stages: [commit-msg]
+        pass_filenames: true
+      - id: line-count-limit
+        name: line count limit (warn >500, block >750)
+        description: Warn on files 501–750 lines; fail if any >750 lines
+        entry: bash -lc 'scripts/line_count_check.sh'
+        language: system
+        pass_filenames: true
 
   # GolangCI-Lint (static analysis)
   - repo: https://github.com/golangci/golangci-lint
