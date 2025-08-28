@@ -67,6 +67,10 @@ Our pre-commit `no-commit-to-branch` hook blocks commits on non-conforming branc
   ```
   or commit normally and the `commit-msg` hook will validate.
 
+- Issue reference: include a GitHub issue reference (`#<issue>`) somewhere in the commit
+  message (body or footer). Examples: `Refs #29`, `Closes #102`.
+  The commit-msg hook only warns if missing; commits still proceed.
+
 ## Development Workflow
 
 - Create or pick up an issue. For new features, propose design via an issue first.
@@ -85,6 +89,13 @@ Our pre-commit `no-commit-to-branch` hook blocks commits on non-conforming branc
 
 - `go fmt ./...` and `go vet ./...` run via pre-commit.
 - `golangci-lint` runs as part of pre-commit; CI integration may run it on PRs as well.
+
+## File Size Guidelines
+
+- Keep source files concise. The pre-commit hook warns when a changed file exceeds 500 lines and blocks commits for files over 750 lines.
+  - Warning: 501–750 lines (message only; commit proceeds)
+  - Error: >750 lines (commit blocked)
+  - Consider splitting large files into smaller units for readability and maintainability.
 
 ## Security & Secrets
 
